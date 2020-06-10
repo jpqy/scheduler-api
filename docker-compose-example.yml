@@ -6,7 +6,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgres://user:pass@postgres:5432/db
+      DATABASE_URL: postgres://user:pass@postgres:5432/scheduler
       NODE_ENV: development
       PORT: 22223
     ports:
@@ -24,9 +24,12 @@ services:
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
-      POSTGRES_DB: db
+      POSTGRES_DB: scheduler
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user"]
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - ./src/db/schema/create.sql:/docker-entrypoint-initdb.d/10-schema.sql
+      - ./src/db/schema/development.sql:/docker-entrypoint-initdb.d/20-seeds.sql
