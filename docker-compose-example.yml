@@ -14,11 +14,11 @@ services:
     command: node ./src/index.js
     restart: on-failure
     volumes:
-      - .:/scheduler-api/
-      - /scheduler-api/node_modules
+      - scheduler-api-server:/scheduler-api/
+      - scheduler-api-server:/scheduler-api/node_modules
 
   postgres:
-    image: postgres:10.4
+    image: postgres:latest
     ports:
       - "35432:5432"
     environment:
@@ -26,10 +26,15 @@ services:
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: scheduler
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user"]
+      test: ["CMD-SHELL", "pg_isready -U scheduler"]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
+      - scheduler-api-db:/var/lib/postgresql/data
       - ./src/db/schema/create.sql:/docker-entrypoint-initdb.d/10-schema.sql
       - ./src/db/schema/development.sql:/docker-entrypoint-initdb.d/20-seeds.sql
+
+volumes:
+  scheduler-api-server:
+  scheduler-api-db:
